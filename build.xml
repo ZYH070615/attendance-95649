@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="attendance" default="package" basedir=".">
+    <property name="src.dir" value="src/java"/>
+    <property name="web.dir" value="web"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/web/WEB-INF/classes"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="tomcat.home" value="/opt/homebrew/opt/tomcat@9/libexec"/>
+
+    <path id="compile.classpath">
+        <fileset dir="${tomcat.home}/lib">
+            <include name="servlet-api.jar"/>
+        </fileset>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <delete file="attendance.war"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}"
+               source="11" target="11" encoding="UTF-8"
+               includeantruntime="false" debug="true">
+            <classpath refid="compile.classpath"/>
+        </javac>
+    </target>
+
+    <target name="prepare-web" depends="compile">
+        <copy todir="${build.dir}/web">
+            <fileset dir="${web.dir}"/>
+        </copy>
+    </target>
+
+    <target name="package" depends="prepare-web">
+        <mkdir dir="${dist.dir}"/>
+        <war destfile="${dist.dir}/attendance.war" webxml="${web.dir}/WEB-INF/web.xml">
+            <fileset dir="${build.dir}/web">
+                <exclude name="WEB-INF/web.xml"/>
+            </fileset>
+        </war>
+        <copy file="${dist.dir}/attendance.war" tofile="attendance.war"/>
+        <echo message="BUILD SUCCESSFUL: ${basedir}/attendance.war"/>
+    </target>
+</project>
